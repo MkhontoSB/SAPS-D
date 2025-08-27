@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Registration</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        .error { color: red; font-size: 14px; margin-top: 5px; display: none; }
+        .success { color: green; font-size: 14px; margin-top: 5px; display: none; }
+    </style>
+</head>
+<body>
+    <h2>User Registration</h2>
+    <form id="registrationForm">
+        <div class="form-group">
+            <label for="badge_id">Badge ID (5 digits, cannot be all zeros):</label>
+            <input type="password" id="badge_id" name="badge_id" pattern="\d{5}" title="5-digit code" required 
+                   oninput="validateBadgeId()">
+            <div id="badgeError" class="error">Please enter a valid 5-digit code that is not all zeros.</div>
+        </div>
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="rank">Rank:</label>
+            <input type="text" id="rank" name="rank" required>
+        </div>
+        <button type="button" onclick="registerUser()">Register</button>
+        <div id="message" class="success"></div>
+    </form>
+    <p style="text-align: center; margin-top: 20px;">
+    Already registered? <a href="/login">Login here</a>
+</p>
+
+    <script>
+        function validateBadgeId() {
+            const badgeInput = document.getElementById('badge_id');
+            const errorDiv = document.getElementById('badgeError');
+            
+            // Check if it's exactly 5 digits
+            if (!/^\d{5}$/.test(badgeInput.value)) {
+                errorDiv.style.display = 'block';
+                return false;
+            }
+            
+            // Check if it's all zeros
+            if (badgeInput.value === '00000') {
+                errorDiv.style.display = 'block';
+                return false;
+            }
+            
+            errorDiv.style.display = 'none';
+            return true;
+        }
+        
+        function registerUser() {
+            if (!validateBadgeId()) {
+                return;
+            }
+            
+            const badgeId = document.getElementById('badge_id').value;
+            const name = document.getElementById('name').value;
+            const rank = document.getElementById('rank').value;
+            
+            // Call the API
+            fetch('http://localhost:5000/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    badge_id: badgeId,
+                    name: name,
+                    rank: rank
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageDiv = document.getElementById('message');
+                if (data.success) {
+                    messageDiv.className = 'success';
+                    messageDiv.style.display = 'block';
+                    messageDiv.textContent = 'Registration successful! Proceeding to face capture...';
+                    
+                    // Redirect to face capture page after a delay - FIXED URL
+                    setTimeout(() => {
+                        window.location.href = `/face_capturer.html?badge_id=${badgeId}&name=${encodeURIComponent(name)}`;
+                    }, 2000);
+                } else {
+                    messageDiv.className = 'error';
+                    messageDiv.style.display = 'block';
+                    messageDiv.textContent = 'Error: ' + data.message;
+                }
+            })
+            .catch(error => {
+                const messageDiv = document.getElementById('message');
+                messageDiv.className = 'error';
+                messageDiv.style.display = 'block';
+                messageDiv.textContent = 'Error: ' + error.message;
+            });
+        }
+        
+        // Add input restriction to only allow numbers
+        document.getElementById('badge_id').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            
+            // Limit to 5 characters
+            if (this.value.length > 5) {
+                this.value = this.value.slice(0, 5);
+            }
+        });
+    </script>
+</body>
+</html>

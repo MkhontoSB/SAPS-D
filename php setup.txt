@@ -1,0 +1,1 @@
+make sure you move the php ,logo and styles file to xammp-htdoc-saps 
