@@ -34,8 +34,11 @@ CREATE TABLE `cases` (
   `description` text NOT NULL,
   `status` enum('Ongoing','Cold','Closed') DEFAULT 'Ongoing',
   `last_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`case_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `assigned_officer` int DEFAULT NULL,
+  PRIMARY KEY (`case_id`),
+  KEY `assigned_officer` (`assigned_officer`),
+  CONSTRAINT `cases_ibfk_1` FOREIGN KEY (`assigned_officer`) REFERENCES `employees` (`Badge_ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,6 +47,7 @@ CREATE TABLE `cases` (
 
 LOCK TABLES `cases` WRITE;
 /*!40000 ALTER TABLE `cases` DISABLE KEYS */;
+INSERT INTO `cases` VALUES (1,'mike','thohoyandoa','steve','2025-08-27','Assault','he beat me up','Closed','2025-08-29 19:03:20',NULL),(2,'John ball','univen','mike','2025-08-29','Fraud','stole smart phone','Ongoing','2025-08-29 19:46:52',NULL);
 /*!40000 ALTER TABLE `cases` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -58,6 +62,7 @@ CREATE TABLE `employees` (
   `Badge_ID` int NOT NULL,
   `Name` varchar(255) NOT NULL,
   `Rank` varchar(100) DEFAULT NULL,
+  `role` varchar(20) DEFAULT 'officer',
   PRIMARY KEY (`Badge_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -68,6 +73,7 @@ CREATE TABLE `employees` (
 
 LOCK TABLES `employees` WRITE;
 /*!40000 ALTER TABLE `employees` DISABLE KEYS */;
+INSERT INTO `employees` VALUES (12345,'fanrooi','Detective','officer'),(54321,'malayi','Detective','officer');
 /*!40000 ALTER TABLE `employees` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -91,7 +97,7 @@ CREATE TABLE `protection_orders` (
   `perpetrator_name` varchar(255) NOT NULL,
   `immediate_danger` enum('Yes','No') NOT NULL,
   `status` enum('Active','Pending','Served','Closed') DEFAULT 'Pending',
-  `date_filed` date NOT NULL,
+  `date_filed` date NOT NULL DEFAULT (curdate()),
   `last_status_update` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`order_id`),
   KEY `case_id` (`case_id`),
@@ -144,4 +150,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-27 19:58:10
+-- Dump completed on 2025-08-29 22:01:19

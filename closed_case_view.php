@@ -33,7 +33,7 @@ $stmt->close();
 </head>
 <body>
 <div class="container">
-    <img src="pics/logo.png" class="logo">
+    <img src="logo.png" class="logo">
     <h2>Closed Case Details</h2>
 
     <?php if($case): ?>
