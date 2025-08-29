@@ -1,40 +1,134 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>User Registration</title>
+    <title>User Registration - Secure Access System</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; }
-        input[type="text"], input[type="password"] { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { padding: 10px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-        .error { color: red; font-size: 14px; margin-top: 5px; display: none; }
-        .success { color: green; font-size: 14px; margin-top: 5px; display: none; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #0b1d33;
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 50px auto;
+            background: #122544;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
+        }
+
+        h1, h2 {
+            margin: 20px 0;
+            color: white;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            outline: none;
+            background: #1c2e4a;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #2e8b57;
+            color: white;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #3da76d;
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+            background: rgba(139, 30, 30, 0.2);
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .success {
+            color: #4CAF50;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+            background: rgba(46, 139, 87, 0.2);
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .link {
+            color: #bbb;
+            font-size: 14px;
+            display: block;
+            margin-top: 20px;
+            text-decoration: none;
+        }
+        
+        .link:hover {
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <h2>User Registration</h2>
-    <form id="registrationForm">
-        <div class="form-group">
-            <label for="badge_id">Badge ID (5 digits, cannot be all zeros):</label>
-            <input type="password" id="badge_id" name="badge_id" pattern="\d{5}" title="5-digit code" required 
-                   oninput="validateBadgeId()">
-            <div id="badgeError" class="error">Please enter a valid 5-digit code that is not all zeros.</div>
-        </div>
-        <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
-        </div>
-        <div class="form-group">
-            <label for="rank">Rank:</label>
-            <input type="text" id="rank" name="rank" required>
-        </div>
-        <button type="button" onclick="registerUser()">Register</button>
-        <div id="message" class="success"></div>
-    </form>
-    <p style="text-align: center; margin-top: 20px;">
-    Already registered? <a href="/login">Login here</a>
-</p>
+    <div class="container">
+        <h1>Secure Access System</h1>
+        <h2>User Registration</h2>
+        
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="badge_id">Badge ID (5 digits, cannot be all zeros):</label>
+                <input type="password" id="badge_id" name="badge_id" pattern="\d{5}" title="5-digit code" required 
+                       oninput="validateBadgeId()" placeholder="Enter 5-digit badge ID">
+                <div id="badgeError" class="error">Please enter a valid 5-digit code that is not all zeros.</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required placeholder="Enter your full name">
+            </div>
+            
+            <div class="form-group">
+                <label for="rank">Rank/Position:</label>
+                <input type="text" id="rank" name="rank" required placeholder="Enter your rank or position">
+            </div>
+            
+            <button type="button" onclick="registerUser()">Register</button>
+            
+            <div id="message" class="success"></div>
+        </form>
+        
+        <a href="/login" class="link">Already registered? Login here</a>
+    </div>
 
     <script>
         function validateBadgeId() {
