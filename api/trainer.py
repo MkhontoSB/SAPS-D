@@ -4,12 +4,12 @@ import numpy as np
 from PIL import Image
 from pathlib import Path
 
-# Use a cross-platform approach for paths
-base_dir = Path("C:\\Projects\\Docker\\api")
+
+base_dir = Path("P:\\Projects\\Docker\\api")
 recognizer_dir = base_dir / "recognizer"
 dataset_dir = base_dir / "dataset"
 
-# Create directories if they don't exist
+
 recognizer_dir.mkdir(parents=True, exist_ok=True)
 
 def train_model():

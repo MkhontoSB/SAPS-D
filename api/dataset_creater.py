@@ -1,4 +1,4 @@
-#import packages
+
 
 import base64
 import os
@@ -16,7 +16,7 @@ mysql_config = {
 }
 
 
-base_dir = Path("C:\\Projects\\Docker\\api")
+base_dir = Path("P:\\Projects\\Docker\\api")
 dataset_dir = base_dir / "dataset"
 
 # Create directories if they don't exist
@@ -81,7 +81,7 @@ def capture_faces_from_camera(Badge_ID, sample_count=20):
                 cv2.waitKey(100)
             
             cv2.imshow('Face', img)
-            if cv2.waitKey(100) & 0xFF == 27:  # ESC key
+            if cv2.waitKey(100) & 0xFF == 27:  
                 break
         
         cam.release()

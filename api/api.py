@@ -1,4 +1,4 @@
-# api.py - Fixed version
+
 import time
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
@@ -16,28 +16,27 @@ import hmac
 app = Flask(__name__)
 CORS(app)  
 
-# MySQL configuration - Updated to use your saps_db database
+
 mysql_config = {
     'host': '127.0.0.1',
     'user': 'root',  
     'password': 'Spear@20',  
-    'database': 'saps_db'  # Changed from 'docker' to 'saps_db'
+    'database': 'saps_db'  
 }
 
-# Set base directory to current directory
-base_dir = Path("C:\\Projects\\Docker\\api")
+
+base_dir = Path("P:\\Projects\\Docker\\api")
 dataset_dir = base_dir / "dataset"
 recognizer_dir = base_dir / "recognizer"
 face_cascade_path = base_dir / "haarcascade_frontalface_default.xml"
 
-# Create directories if they don't exist
+
 dataset_dir.mkdir(parents=True, exist_ok=True)
 recognizer_dir.mkdir(parents=True, exist_ok=True)
 
-# Secret key for token generation
 SECRET_KEY = "2025"  
 
-# Database initialization function - Updated for saps_db
+
 def init_db():
     try:
         conn = mysql.connector.connect(
@@ -50,20 +49,27 @@ def init_db():
         cursor.close()
         conn.close()
         
-        # Connect to the specific database
+        
         conn = mysql.connector.connect(**mysql_config)
         cursor = conn.cursor()
         
-        # Create employees table if it doesn't exist
+        
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS employees (
                 Badge_ID INTEGER PRIMARY KEY,
                 Name VARCHAR(45) NOT NULL,
-                `Rank` VARCHAR(45) NOT NULL
+                `Rank` VARCHAR(45) NOT NULL,
+                role VARCHAR(20) DEFAULT 'officer'
             )
         ''')
         
-        # Create cases table if it doesn't exist
+        
+        cursor.execute("SHOW COLUMNS FROM employees LIKE 'role'")
+        result = cursor.fetchone()
+        if not result:
+            cursor.execute("ALTER TABLE employees ADD COLUMN role VARCHAR(20) DEFAULT 'officer'")
+        
+        
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS cases (
                 case_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -74,46 +80,35 @@ def init_db():
                 crime_type VARCHAR(100) NOT NULL,
                 description TEXT NOT NULL,
                 status ENUM('Ongoing','Cold','Closed') DEFAULT 'Ongoing',
-                last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                assigned_officer INT DEFAULT NULL,
+                FOREIGN KEY (assigned_officer) REFERENCES employees(Badge_ID)
             )
         ''')
         
-        # Create protection_orders table if it doesn't exist
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS protection_orders (
-                order_id INT AUTO_INCREMENT PRIMARY KEY,
-                case_id INT DEFAULT NULL,
-                reporter_fullname VARCHAR(255) NOT NULL,
-                reporter_id_number VARCHAR(13) NOT NULL,
-                reporter_contact VARCHAR(10) NOT NULL,
-                reporter_address TEXT NOT NULL,
-                type_of_abuse VARCHAR(255) NOT NULL,
-                date_of_incident DATE NOT NULL,
-                description TEXT NOT NULL,
-                perpetrator_name VARCHAR(255) NOT NULL,
-                immediate_danger ENUM('Yes','No') NOT NULL,
-                status ENUM('Active','Pending','Served','Closed') DEFAULT 'Pending',
-                date_filed DATE NOT NULL,
-                last_status_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                FOREIGN KEY (case_id) REFERENCES cases(case_id)
-            )
-        ''')
+        
+        cursor.execute("SHOW COLUMNS FROM cases LIKE 'assigned_officer'")
+        result = cursor.fetchone()
+        if not result:
+            cursor.execute("ALTER TABLE cases ADD COLUMN assigned_officer INT DEFAULT NULL")
+            cursor.execute("ALTER TABLE cases ADD FOREIGN KEY (assigned_officer) REFERENCES employees(Badge_ID)")
         
         conn.commit()
         conn.close()
     except Exception as e:
         print(f"Database initialization error: {e}")
+        print(f"Database initialization error: {e}")
 
-# Initialize database
+
 init_db()
 
-# Import functions from your modules with proper error handling
+
 def import_functions():
     try:
-        # Add the current directory to Python path
+        
         sys.path.append(str(base_dir))
         
-        # Try to import from dataset_creater
+        
         try:
             from dataset_creater import insertorupdate, process_and_save_face
         except ImportError:
@@ -121,14 +116,14 @@ def import_functions():
             insertorupdate = None
             process_and_save_face = None
             
-        # Try to import from trainer
+        
         try:
             from trainer import train_model
         except ImportError:
             print("trainer not found, using fallback implementation")
             train_model = None
             
-        # Try to import from detect
+        
         try:
             from detect import get_user, recognize_face
         except ImportError:
@@ -146,26 +141,26 @@ def import_functions():
 insertorupdate, process_and_save_face, train_model, get_user, recognize_face = import_functions()
 
 # Fallback implementations if imports failed
-if insertorupdate is None:
-    def insertorupdate(Badge_ID, Name, Rank):
-        try:
-            conn = mysql.connector.connect(**mysql_config)
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM employees WHERE Badge_ID=%s", (Badge_ID,))
-            isRecordExist = cursor.fetchone() is not None
+def insertorupdate(Badge_ID, Name, Rank):
+    try:
+        conn = mysql.connector.connect(**mysql_config)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM employees WHERE Badge_ID=%s", (Badge_ID,))
+        isRecordExist = cursor.fetchone() is not None
+        
+        if isRecordExist:
+            cursor.execute("UPDATE employees SET Name=%s, `Rank`=%s WHERE Badge_ID=%s", 
+                          (Name, Rank, Badge_ID))
+        else:
+            cursor.execute("INSERT INTO employees (Badge_ID, Name, `Rank`, role) VALUES (%s,%s,%s,'officer')", 
+                          (Badge_ID, Name, Rank))
             
-            if isRecordExist:
-                cursor.execute("UPDATE employees SET Name=%s, `Rank`=%s WHERE Badge_ID=%s", 
-                              (Name, Rank, Badge_ID))
-            else:
-                cursor.execute("INSERT INTO employees (Badge_ID, Name, `Rank`) VALUES (%s,%s,%s)", 
-                              (Badge_ID, Name, Rank))
-            conn.commit()
-            conn.close()
-            return True
-        except Exception as e:
-            print(f"Database error: {e}")
-            return False
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Database error: {e}")
+        return False
 
 if process_and_save_face is None:
     def process_and_save_face(image_data, badge_id):
@@ -185,7 +180,6 @@ if process_and_save_face is None:
             existing_images = list(dataset_dir.glob(f"user.{badge_id}.*.jpg"))
             sample_num = len(existing_images) + 1
             
-            # Save the first face found
             x, y, w, h = faces[0]
             filename = dataset_dir / f"user.{badge_id}.{sample_num}.jpg"
             cv2.imwrite(str(filename), gray[y:y+h, x:x+w])
@@ -201,7 +195,7 @@ if process_and_save_face is None:
 if train_model is None:
     def train_model():
         try:
-            # Try to run trainer.py as a subprocess
+            
             result = subprocess.run([sys.executable, 'trainer.py'], capture_output=True, text=True, cwd=base_dir)
             if result.returncode == 0:
                 return {"success": True, "message": "Model trained successfully"}
@@ -215,7 +209,7 @@ if get_user is None:
         try:
             conn = mysql.connector.connect(**mysql_config)
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM employees WHERE Badge_ID=%s", (Badge_ID,))
+            cursor.execute("SELECT Badge_ID, Name, Rank, role FROM employees WHERE Badge_ID=%s", (Badge_ID,))
             user = cursor.fetchone()
             conn.close()
             return user
@@ -259,7 +253,8 @@ if recognize_face is None:
                     "user": {
                         "badge_id": profile[0],
                         "name": profile[1],
-                        "rank": profile[2]
+                        "rank": profile[2],
+                        "role": profile[3]
                     },
                     "confidence": float(conf)
                 }
@@ -273,10 +268,10 @@ if recognize_face is None:
             return {"success": False, "message": str(e)}
 
 # Token generation and verification functions for PHP integration
-def generate_token(badge_id, name, rank):
+def generate_token(badge_id, name, rank, role): 
     """Generate a secure token for PHP authentication"""
     timestamp = str(int(time.time()))
-    data = f"{badge_id}:{name}:{rank}:{timestamp}"
+    data = f"{badge_id}:{name}:{rank}:{role}:{timestamp}"  
     signature = hmac.new(SECRET_KEY.encode(), data.encode(), hashlib.sha256).hexdigest()
     token = f"{data}:{signature}"
     return base64.urlsafe_b64encode(token.encode()).decode()
@@ -286,19 +281,20 @@ def verify_token(token):
     try:
         decoded = base64.urlsafe_b64decode(token.encode()).decode()
         parts = decoded.split(':')
-        if len(parts) != 5:
+        if len(parts) != 6:  
             return None
             
-        badge_id, name, rank, timestamp, signature = parts
-        data = f"{badge_id}:{name}:{rank}:{timestamp}"
+        badge_id, name, rank, role, timestamp, signature = parts
+        data = f"{badge_id}:{name}:{rank}:{role}:{timestamp}"
         expected_signature = hmac.new(SECRET_KEY.encode(), data.encode(), hashlib.sha256).hexdigest()
         
-        # Check if signature matches and token is not expired (1 hour)
+        
         if signature == expected_signature and int(time.time()) - int(timestamp) < 3600:
             return {
                 'badge_id': badge_id,
                 'name': name,
-                'rank': rank
+                'rank': rank,
+                'role': role  
             }
         return None
     except:
@@ -310,7 +306,7 @@ def register_user():
     try:
         data = request.get_json()
         
-        # Validate input
+        
         if not data or 'badge_id' not in data or 'name' not in data or 'rank' not in data:
             return jsonify({'success': False, 'message': 'Missing required fields'}), 400
         
@@ -318,16 +314,16 @@ def register_user():
         name = data['name']
         rank = data['rank']
         
-        # Validate badge ID
+        
         if not badge_id.isdigit() or len(badge_id) != 5 or badge_id == '00000':
             return jsonify({'success': False, 'message': 'Invalid badge ID. Must be a 5-digit code that is not all zeros.'}), 400
         
-        # Check if user already exists
+        
         existing_user = get_user(badge_id)
         if existing_user:
             return jsonify({'success': False, 'message': 'User with this badge ID already exists'}), 400
         
-        # Register user in database
+        
         success = insertorupdate(badge_id, name, rank)
         if not success:
             return jsonify({'success': False, 'message': 'Failed to register user in database'}), 500
@@ -352,7 +348,7 @@ def capture_face():
         badge_id = data['badge_id']
         image_data = data['image']
         
-        # Process and save the face
+        
         result = process_and_save_face(image_data, badge_id)
         
         if result['success']:
@@ -408,7 +404,7 @@ def manual_login():
         
         badge_id = data['badge_id']
         
-        # Validate badge ID format
+        
         if not badge_id.isdigit() or len(badge_id) != 5 or badge_id == '00000':
             return jsonify({
                 'success': False, 
@@ -416,7 +412,7 @@ def manual_login():
                 'message': 'Invalid badge ID format. Must be a 5-digit code that is not all zeros.'
             }), 400
         
-        # Check if user exists in database
+        
         user = get_user(badge_id)
         
         if user:
@@ -426,7 +422,8 @@ def manual_login():
                 'user': {
                     'badge_id': user[0],
                     'name': user[1],
-                    'rank': user[2]
+                    'rank': user[2],
+                    'role': user[3]
                 },
                 'message': 'Login successful'
             })
@@ -443,6 +440,7 @@ def manual_login():
             'verified': False,
             'message': f'Error during manual login: {str(e)}'
         }), 500
+
     
 from flask import redirect
 
@@ -451,13 +449,13 @@ def generate_token_endpoint():
     try:
         data = request.get_json()
         
-        if not data or 'badge_id' not in data or 'name' not in data or 'rank' not in data:
+        if not data or 'badge_id' not in data or 'name' not in data or 'rank' not in data or 'role' not in data:
             return jsonify({'success': False, 'message': 'Missing required fields'}), 400
         
-        # Generate a secure token
-        token = generate_token(data['badge_id'], data['name'], data['rank'])
         
-        # Return the token as JSON instead of redirecting
+        token = generate_token(data['badge_id'], data['name'], data['rank'], data['role'])
+        
+        
         return jsonify({
             'success': True, 
             'token': token,
@@ -469,7 +467,7 @@ def generate_token_endpoint():
 
 
 
-# New endpoint for PHP integration
+
 @app.route('/php-auth', methods=['POST'])
 def php_auth():
     """Endpoint for PHP to verify tokens"""
@@ -486,7 +484,7 @@ def php_auth():
             return jsonify({
                 'success': True,
                 'verified': True,
-                'user': user_data
+                'user': user_data  
             })
         else:
             return jsonify({
@@ -500,6 +498,152 @@ def php_auth():
             'success': False,
             'verified': False,
             'message': f'Error during token verification: {str(e)}'
+        }), 500
+    
+@app.route('/get-officers', methods=['GET'])
+def get_officers():
+    """Get list of all officers for assignment"""
+    try:
+        conn = mysql.connector.connect(**mysql_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT Badge_ID, Name, Rank FROM employees WHERE role = 'officer'")
+        officers = cursor.fetchall()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'officers': officers
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error fetching officers: {str(e)}'
+        }), 500
+
+@app.route('/assign-case', methods=['POST'])
+def assign_case():
+    """Assign a case to an officer"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'case_id' not in data or 'officer_id' not in data:
+            return jsonify({'success': False, 'message': 'Missing required fields'}), 400
+        
+        case_id = data['case_id']
+        officer_id = data['officer_id']
+        
+        conn = mysql.connector.connect(**mysql_config)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE cases SET assigned_officer = %s WHERE case_id = %s", (officer_id, case_id))
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Case assigned successfully'
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error assigning case: {str(e)}'
+        }), 500
+
+@app.route('/delete-case', methods=['POST'])
+def delete_case():
+    """Delete a case (only cold cases can be deleted)"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'case_id' not in data:
+            return jsonify({'success': False, 'message': 'Missing case ID'}), 400
+        
+        case_id = data['case_id']
+        
+        conn = mysql.connector.connect(**mysql_config)
+        cursor = conn.cursor()
+        
+        # Check if case is cold
+        cursor.execute("SELECT status FROM cases WHERE case_id = %s", (case_id,))
+        case_status = cursor.fetchone()
+        
+        if not case_status:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'Case not found'
+            }), 404
+        
+        if case_status[0] != 'Cold':
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'Only cold cases can be deleted'
+            }), 400
+        
+        # Delete the case
+        cursor.execute("DELETE FROM cases WHERE case_id = %s", (case_id,))
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Case deleted successfully'
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error deleting case: {str(e)}'
+        }), 500
+
+@app.route('/reopen-case', methods=['POST'])
+def reopen_case():
+    """Reopen a cold case (change status to Ongoing)"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'case_id' not in data:
+            return jsonify({'success': False, 'message': 'Missing case ID'}), 400
+        
+        case_id = data['case_id']
+        
+        conn = mysql.connector.connect(**mysql_config)
+        cursor = conn.cursor()
+        
+        
+        cursor.execute("SELECT status FROM cases WHERE case_id = %s", (case_id,))
+        case_status = cursor.fetchone()
+        
+        if not case_status:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'Case not found'
+            }), 404
+        
+        if case_status[0] != 'Cold':
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'Only cold cases can be reopened'
+            }), 400
+        
+        
+        cursor.execute("UPDATE cases SET status = 'Ongoing' WHERE case_id = %s", (case_id,))
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Case reopened successfully'
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error reopening case: {str(e)}'
         }), 500
 
 @app.route('/realtime', methods=['GET'])

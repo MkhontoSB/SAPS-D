@@ -92,7 +92,7 @@
             background: #1d4b85;
         }
         
-        /* Additional styles for the login page */
+        
         .login-options {
             display: flex;
             justify-content: space-between;
@@ -194,7 +194,7 @@
             </div>
         </div>
         
-        <!-- Facial Recognition Login Section -->
+        
         <div class="login-section active" id="facialLogin">
             <video id="video" autoplay></video>
             
@@ -211,11 +211,12 @@
             </div>
         </div>
         
-        <!-- Manual Login Section -->
+        
         <div class="login-section" id="manualLogin">
             <div class="form-group">
                 <label for="badge_id">Badge ID:</label>
-                <input type="text" id="manualBadgeId" name="badge_id" required>
+                <input type="password" id="manualBadgeId" name="badge_id" pattern="\d{5}" title="5-digit code" required>
+                
             </div>
             
             <button id="manualLoginBtn" class="btn-primary">Login</button>
@@ -229,7 +230,7 @@
     </div>
     
     <script>
-        // Elements
+        
         const facialOption = document.getElementById('facialOption');
         const manualOption = document.getElementById('manualOption');
         const facialLogin = document.getElementById('facialLogin');
@@ -268,7 +269,7 @@
                 verifyBtn.disabled = true;
             });
         
-        // Verify identity with facial recognition
+        
         verifyBtn.addEventListener('click', () => {
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
@@ -315,7 +316,8 @@
                             body: JSON.stringify({
                                 badge_id: data.user.badge_id,
                                 name: data.user.name,
-                                rank: data.user.rank
+                                rank: data.user.rank,
+                                role: data.user.role || 'officer'
                             })
                         })
                         .then(response => response.json())
@@ -350,7 +352,7 @@
             });
         });
         
-        // Manual login functionality
+        
         manualLoginBtn.addEventListener('click', () => {
             const badgeId = document.getElementById('manualBadgeId').value;
             
@@ -370,7 +372,7 @@
             manualStatus.textContent = 'Verifying badge ID...';
             manualStatus.className = 'info';
             
-            // Send to API for manual authentication
+            
             fetch('http://localhost:5000/manual-login', {
                 method: 'POST',
                 headers: {
@@ -402,7 +404,8 @@
                             body: JSON.stringify({
                                 badge_id: data.user.badge_id,
                                 name: data.user.name,
-                                rank: data.user.rank
+                                rank: data.user.rank,
+                                role: data.user.role || 'officer'
                             })
                         })
                         .then(response => response.json())

@@ -13,7 +13,7 @@ mysql_config = {
 }
 
 
-base_dir = Path("C:\\Projects\\Docker\\api")
+base_dir = Path("P:\\Projects\\Docker\\api")
 recognizer_dir = base_dir / "recognizer"
 face_cascade_path = base_dir / "haarcascade_frontalface_default.xml"
 
@@ -85,7 +85,8 @@ def recognize_face(image_path=None, image_data=None):
                 "user": {
                     "badge_id": profile[0],
                     "name": profile[1],
-                    "rank": profile[2]
+                    "rank": profile[2],
+                    "role": profile[3] if len(profile) > 3 else 'officer'
                 },
                 "confidence": float(conf)
             }

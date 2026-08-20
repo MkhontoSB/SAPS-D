@@ -135,13 +135,13 @@
             const badgeInput = document.getElementById('badge_id');
             const errorDiv = document.getElementById('badgeError');
             
-            // Check if it's exactly 5 digits
+           
             if (!/^\d{5}$/.test(badgeInput.value)) {
                 errorDiv.style.display = 'block';
                 return false;
             }
             
-            // Check if it's all zeros
+            
             if (badgeInput.value === '00000') {
                 errorDiv.style.display = 'block';
                 return false;
@@ -180,7 +180,7 @@
                     messageDiv.style.display = 'block';
                     messageDiv.textContent = 'Registration successful! Proceeding to face capture...';
                     
-                    // Redirect to face capture page after a delay - FIXED URL
+                    
                     setTimeout(() => {
                         window.location.href = `/face_capturer.html?badge_id=${badgeId}&name=${encodeURIComponent(name)}`;
                     }, 2000);
@@ -198,11 +198,11 @@
             });
         }
         
-        // Add input restriction to only allow numbers
+        
         document.getElementById('badge_id').addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '');
             
-            // Limit to 5 characters
+            
             if (this.value.length > 5) {
                 this.value = this.value.slice(0, 5);
             }

@@ -263,7 +263,7 @@
                                 if (trainData.success) {
                                     status.textContent = 'Registration and training complete!';
                                     
-                                    // After training, verify the user's face to get a token
+                                    
                                     const verifyCanvas = document.createElement('canvas');
                                     verifyCanvas.width = video.videoWidth;
                                     verifyCanvas.height = video.videoHeight;
@@ -292,13 +292,14 @@
                                                 body: JSON.stringify({
                                                     badge_id: verifyData.user.badge_id,
                                                     name: verifyData.user.name,
-                                                    rank: verifyData.user.rank
+                                                    rank: verifyData.user.rank,
+                                                     role: verifyData.user.role || 'officer'
                                                 })
                                             })
                                             .then(response => response.json())
                                             .then(tokenData => {
                                                 if (tokenData.success) {
-                                                    // Redirect to PHP login with token
+                                                    
                                                     window.location.href = tokenData.redirect_url;
                                                 } else {
                                                     status.textContent = 'Authentication failed: ' + (tokenData.message || 'Unknown error');
@@ -354,7 +355,7 @@
             progressText.textContent = `${sampleCount}/${totalSamples} images captured`;
         }
         
-        // Start automatic capture
+        
         function startCapture() {
             if (isCapturing) return;
             
@@ -364,14 +365,14 @@
             status.textContent = 'Capturing images...';
             status.className = '';
             
-            // Initial capture
+           
             captureImage();
             
-            // Set up interval for subsequent captures (every 1 second)
+            
             captureInterval = setInterval(captureImage, 1000);
         }
         
-        // Stop automatic capture
+        
         function stopCapture() {
             isCapturing = false;
             clearInterval(captureInterval);
@@ -379,7 +380,7 @@
             captureBtn.disabled = false;
         }
         
-        // Event listener for capture button
+        
         captureBtn.addEventListener('click', startCapture);
         
         // Update initial progress
