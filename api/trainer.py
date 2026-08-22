@@ -5,7 +5,7 @@ from PIL import Image
 from pathlib import Path
 
 
-base_dir = Path("P:\\Projects\\Docker\\api")
+base_dir = Path(__file__).resolve().parent
 recognizer_dir = base_dir / "recognizer"
 dataset_dir = base_dir / "dataset"
 
@@ -44,7 +44,7 @@ def train_model():
             return {"success": False, "message": "No training data found"}
         
         Recognizer.train(faces, Badge_IDs)
-        Recognizer.save(str(recognizer_dir / "data.yml"))
+        Recognizer.save(str(recognizer_dir / "training_data.yml"))
         cv2.destroyAllWindows()
         
         return {"success": True, "message": f"Model trained successfully with {len(Badge_IDs)} images"}

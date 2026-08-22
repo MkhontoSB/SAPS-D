@@ -19,13 +19,13 @@ CORS(app)
 
 mysql_config = {
     'host': '127.0.0.1',
-    'user': 'root',  
-    'password': 'Spear@20',  
-    'database': 'saps_db'  
+    'user': 'Police_Application',  
+    'password': 'Spearchirp@20',  
+    'database': 'police_application'  
 }
 
 
-base_dir = Path("P:\\Projects\\Docker\\api")
+base_dir = Path(__file__).resolve().parent
 dataset_dir = base_dir / "dataset"
 recognizer_dir = base_dir / "recognizer"
 face_cascade_path = base_dir / "haarcascade_frontalface_default.xml"
@@ -45,7 +45,7 @@ def init_db():
             password=mysql_config['password']
         )
         cursor = conn.cursor()
-        cursor.execute("CREATE DATABASE IF NOT EXISTS saps_db")
+        cursor.execute("CREATE DATABASE IF NOT EXISTS police_application")
         cursor.close()
         conn.close()
         
@@ -459,7 +459,7 @@ def generate_token_endpoint():
         return jsonify({
             'success': True, 
             'token': token,
-            'redirect_url': f"http://localhost/saps/login.php?token={token}"
+            'redirect_url': f"http://localhost/DockSAP/login.php?token={token}"
         })
     
     except Exception as e:
@@ -660,15 +660,17 @@ def realtime_recognition():
 # Serve HTML files
 @app.route('/')
 def serve_registration():
-    return send_from_directory('.', 'Registration.html')
+    return send_from_directory(str(base_dir), 'Registration.html')
+
 
 @app.route('/face_capturer.html')
 def serve_face_capturer():
-    return send_from_directory('.', 'face_capturer.html')
+    return send_from_directory(str(base_dir), 'face_capturer.html')
+
 
 @app.route('/login')
 def serve_login():
-    return send_from_directory('.', 'login.html')
+    return send_from_directory(str(base_dir), 'login.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

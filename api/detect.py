@@ -7,13 +7,13 @@ from pathlib import Path
 # MySQL configuration
 mysql_config = {
     'host': '127.0.0.1',
-    'user': 'root',  
-    'password': 'Spear@20',  
-    'database': 'saps_db'
+    'user': 'Police_Application',  
+    'password': 'Spearchirp@20',  
+    'database': 'police_application'
 }
 
 
-base_dir = Path("P:\\Projects\\Docker\\api")
+base_dir = Path(__file__).resolve().parent
 recognizer_dir = base_dir / "recognizer"
 face_cascade_path = base_dir / "haarcascade_frontalface_default.xml"
 
@@ -64,7 +64,7 @@ def recognize_face(image_path=None, image_data=None):
         
         
         recognizer = cv2.face.LBPHFaceRecognizer_create()
-        recognizer_path = recognizer_dir / "data.yml"
+        recognizer_path = recognizer_dir / "training_data.yml"
         
         if not recognizer_path.exists():
             return {"success": False, "message": "Model not trained yet"}
@@ -106,7 +106,7 @@ def realtime_recognition():
 
 
         recognizer = cv2.face.LBPHFaceRecognizer_create()
-        recognizer_path = recognizer_dir / "data.yml"
+        recognizer_path = recognizer_dir / "training_data.yml"
         
         if not recognizer_path.exists():
             print("Model not trained yet")

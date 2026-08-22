@@ -10,13 +10,13 @@ from pathlib import Path
 # MySQL configuration
 mysql_config = {
     'host': '127.0.0.1',
-    'user': 'root',  
-    'password': 'Spear@20',  
-    'database': 'saps_db'
+    'user': 'Police_Application',
+    'password': 'Spearchirp@20',  
+    'database': 'police_application'
 }
 
 
-base_dir = Path("P:\\Projects\\Docker\\api")
+base_dir = Path(__file__).resolve().parent
 dataset_dir = base_dir / "dataset"
 
 # Create directories if they don't exist

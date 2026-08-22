@@ -127,7 +127,7 @@
             <div id="message" class="success"></div>
         </form>
         
-        <a href="/login" class="link">Already registered? Login here</a>
+        <a href="login.html" class="link">Already registered? Login here</a>
     </div>
 
     <script>
@@ -182,7 +182,7 @@
                     
                     
                     setTimeout(() => {
-                        window.location.href = `/face_capturer.html?badge_id=${badgeId}&name=${encodeURIComponent(name)}`;
+                        window.location.href = `http://localhost:5000/face_capturer.html?badge_id=${badgeId}&name=${encodeURIComponent(name)}`;
                     }, 2000);
                 } else {
                     messageDiv.className = 'error';
