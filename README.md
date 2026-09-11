@@ -107,23 +107,23 @@ Assign cases to officers
 * Flask-CORS
 
 **Database**
-*MySQL / MariaDB
-*MySQL Connector/Python
-*PHP MySQLi
+* MySQL / MariaDB
+* MySQL Connector/Python
+* PHP MySQLi
 
 **Computer Vision**
-*OpenCV
-*OpenCV Contrib
-*Haar Cascade Classifier
-*LBPH Face Recognizer
+* OpenCV
+* OpenCV Contrib
+* Haar Cascade Classifier
+* LBPH Face Recognizer
 
 **Development Environment**
-*XAMPP
-*Apache
-*MariaDB/MySQL
-*Python environment
-*Web browser
+* XAMPP
+* Apache
+* MariaDB/MySQL
+* Python environment
+* Web browser
 
 ## System Architecture
 
-![Flowchart](docs/flows.svg)
+![Flowchart](./docs/flows.svg)
