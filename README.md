@@ -126,4 +126,4 @@ Assign cases to officers
 
 ## System Architecture
 
-![Flowchart](/docs/flows.svg)
+![Flowchart](docs/flows.svg)
