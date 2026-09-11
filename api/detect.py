@@ -1,15 +1,21 @@
 import base64
 import cv2
 import numpy as np
-import mysql.connector  
+import mysql.connector 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # MySQL configuration
 mysql_config = {
-    'host': '127.0.0.1',
-    'user': 'Police_Application',  
-    'password': 'Spearchirp@20',  
-    'database': 'police_application'
+    'host': os.getenv('DB_HOST'),
+    'port': int(os.getenv('DB_PORT', 3306)),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'database': os.getenv('DB_NAME')
 }
 
 

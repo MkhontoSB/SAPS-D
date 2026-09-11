@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import mysql.connector  
 import os
+from dotenv import load_dotenv
 import base64
 import subprocess
 import sys
@@ -13,15 +14,18 @@ from pathlib import Path
 import hashlib
 import hmac
 
+load_dotenv()
+
 app = Flask(__name__)
 CORS(app)  
 
 
 mysql_config = {
-    'host': '127.0.0.1',
-    'user': 'Police_Application',  
-    'password': 'Spearchirp@20',  
-    'database': 'police_application'  
+    'host': os.getenv('DB_HOST'),
+    'port': int(os.getenv('DB_PORT', 3306)),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'database': os.getenv('DB_NAME')
 }
 
 
@@ -34,7 +38,7 @@ face_cascade_path = base_dir / "haarcascade_frontalface_default.xml"
 dataset_dir.mkdir(parents=True, exist_ok=True)
 recognizer_dir.mkdir(parents=True, exist_ok=True)
 
-SECRET_KEY = "2025"  
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 
 def init_db():
