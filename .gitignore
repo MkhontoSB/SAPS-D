@@ -1,5 +1,48 @@
+# ==============================
+# Environment / Secrets
+# ==============================
+.env
+.env.*
+!.env.example
+
 config/database.php
 
-uploads/
+# ==============================
+# Python
+# ==============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
 
-pdf/
+# ==============================
+# Facial Recognition Data
+# ==============================
+api/dataset/
+api/recognizer/
+training_data.yml
+
+# ==============================
+# Uploaded Documents
+# ==============================
+uploads/
+pfd/
+
+# ==============================
+# IDE
+# ==============================
+.vscode/
+.idea/
+
+# ==============================
+# Logs / Temporary Files
+# ==============================
+*.log
+*.tmp
+*.temp
+
+# ==============================
+# Windows
+# ==============================
+Thumbs.db
+desktop.ini
