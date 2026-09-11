@@ -5,7 +5,7 @@
 .env.*
 !.env.example
 
-config/database.local.php
+config/database.php
 
 # ==============================
 # Python
@@ -26,6 +26,7 @@ training_data.yml
 # Uploaded Documents
 # ==============================
 uploads/
+pfd/
 
 # ==============================
 # IDE
