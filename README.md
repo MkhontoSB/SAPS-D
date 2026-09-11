@@ -91,6 +91,10 @@ Assign cases to officers
 * Access case-related functionality
 * Manage assigned/available case information
 6. **Document Handling(in development)**
+*
+*
+*
+*
 
 ## Technology Stack
 
