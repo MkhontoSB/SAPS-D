@@ -123,11 +123,11 @@ Assign cases to officers
 
 **Development Environment**
 * XAMPP
-* Apache
+* Apaches
 * MariaDB/MySQL
 * Python environment
 * Web browser
 
 ## System Architecture
 
-![Flowchart](./docs/flows.svg)
+![Flowchart](https://raw.githubusercontent.com/MkhontoSB/SAPS-D/refs/heads/main/docs/Flows.svg)
